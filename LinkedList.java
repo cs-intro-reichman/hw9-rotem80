@@ -43,7 +43,7 @@ public class LinkedList {
     /**
      * Gets the node located at the given index in this list.
      *
-     * @param index the index of the node to retrieve, between 0 and size-1
+     * @param index the index of the node to retrieve, between 0 and size
      * @throws IllegalArgumentException if index is negative or greater than or equal to size
      * @return the node at the given index
      */
@@ -149,7 +149,9 @@ public class LinkedList {
      * @param node the node to remove
      */
     public void remove(Node node) {
-        if (node == null) return;
+        if (node == null) {
+            throw new NullPointerException("Cannot remove null node");
+        }
         if (node == first) {
             first = first.next;
             if (first == null) {
