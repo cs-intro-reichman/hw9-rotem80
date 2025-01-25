@@ -1,3 +1,6 @@
+/**
+ * Represents a list of Nodes.
+ */
 public class LinkedList {
 
     private Node first; // pointer to the first element of this list
@@ -9,7 +12,7 @@ public class LinkedList {
      */
     public LinkedList() {
         first = null;
-        last = null;  // Initialize last as null for an empty list
+        last = null; // Correctly initialize last as null (for empty list)
         size = 0;
     }
 
@@ -92,7 +95,7 @@ public class LinkedList {
         Node newNode = new Node(block);
         if (first == null) { // If the list is empty
             first = newNode;
-            last = newNode;  // Both first and last point to the new node
+            last = newNode;  // Make sure both first and last point to the new node
         } else {
             newNode.next = first;
             first = newNode;
@@ -109,7 +112,7 @@ public class LinkedList {
         Node newNode = new Node(block);
         if (last == null) { // If the list is empty
             first = newNode;
-            last = newNode;  // Both first and last point to the new node
+            last = newNode;  // Make sure both first and last point to the new node
         } else {
             last.next = newNode;
             last = newNode;
@@ -130,17 +133,22 @@ public class LinkedList {
 
         Node newNode = new Node(block);
 
+        // If we're adding to the front (index == 0)
         if (index == 0) {
             addFirst(block);
-        } else if (index == size) {
+        }
+        // If we're adding to the end (index == size)
+        else if (index == size) {
             addLast(block);
-        } else {
-            Node prev = getNode(index - 1);
-            newNode.next = prev.next;
-            prev.next = newNode;
+        }
+        // If we're adding to a middle position
+        else {
+            Node prev = getNode(index - 1); // find the previous node
+            newNode.next = prev.next; // link the new node to the next node
+            prev.next = newNode; // link the previous node to the new node
         }
 
-        size++;
+        size++; // increment the size of the list
     }
 
     /**
@@ -155,7 +163,7 @@ public class LinkedList {
         if (node == first) {
             first = first.next;
             if (first == null) {
-                last = null; // Handle empty list after removal
+                last = null;
             }
         } else {
             Node current = first;
@@ -172,6 +180,11 @@ public class LinkedList {
         size--;
     }
 
+    /**
+     * Removes the node at the specified index from the list.
+     *
+     * @param index the index of the node to remove
+     */
     public void remove(int index) {
         if (index < 0 || index >= size) {
             throw new IllegalArgumentException("index must be between 0 and size");
@@ -179,10 +192,20 @@ public class LinkedList {
         remove(getNode(index));
     }
 
+    /**
+     * Removes the node containing the specified memory block from the list.
+     *
+     * @param block the memory block of the node to remove
+     */
     public void remove(MemoryBlock block) {
         remove(getNode(indexOf(block)));
     }
 
+    /**
+     * A textual representation of this list, for debugging.
+     *
+     * @return a string representing the list
+     */
     public String toString() {
         StringBuilder sb = new StringBuilder();
         Node current = first;
@@ -193,38 +216,12 @@ public class LinkedList {
         return sb.toString().trim();
     }
 
-    // Fixed iterator method to return LinkedList.ListIterator
+    /**
+     * Returns an iterator over the elements in this list in proper sequence.
+     *
+     * @return a ListIterator over the elements in this list
+     */
     public ListIterator iterator() {
         return new ListIterator(first);
-    }
-
-    // Define ListIterator class to be used with LinkedList
-    public class ListIterator {
-        private Node current;
-
-        public ListIterator(Node start) {
-            current = start;
-        }
-
-        public boolean hasNext() {
-            return current != null;
-        }
-
-        public Node next() {
-            Node temp = current;
-            current = current.next;
-            return temp;
-        }
-    }
-
-    // Node class definition as protected and inside LinkedList
-    protected class Node {
-        MemoryBlock block;
-        Node next;
-
-        Node(MemoryBlock block) {
-            this.block = block;
-            this.next = null;
-        }
     }
 }
