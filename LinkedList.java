@@ -12,7 +12,7 @@ public class LinkedList {
      */
     public LinkedList() {
         first = null;
-        last = null; // Correctly initialize last as null (for empty list)
+        last = null; // Initialize last as null for an empty list
         size = 0;
     }
 
@@ -95,7 +95,7 @@ public class LinkedList {
         Node newNode = new Node(block);
         if (first == null) { // If the list is empty
             first = newNode;
-            last = newNode;  // Make sure both first and last point to the new node
+            last = newNode;  // Both first and last point to the new node
         } else {
             newNode.next = first;
             first = newNode;
@@ -112,7 +112,7 @@ public class LinkedList {
         Node newNode = new Node(block);
         if (last == null) { // If the list is empty
             first = newNode;
-            last = newNode;  // Make sure both first and last point to the new node
+            last = newNode;  // Both first and last point to the new node
         } else {
             last.next = newNode;
             last = newNode;
@@ -163,7 +163,7 @@ public class LinkedList {
         if (node == first) {
             first = first.next;
             if (first == null) {
-                last = null;
+                last = null; // Handle empty list after removal
             }
         } else {
             Node current = first;
