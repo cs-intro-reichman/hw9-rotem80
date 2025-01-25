@@ -130,17 +130,25 @@ public class LinkedList {
         if (index < 0 || index > size) {
             throw new IllegalArgumentException("index must be between 0 and size");
         }
+
+        Node newNode = new Node(block);
+
+        // אם אנחנו מוסיפים לראש הרשימה (index == 0)
         if (index == 0) {
             addFirst(block);
-        } else if (index == size) {
-            addLast(block);
-        } else {
-            Node prev = getNode(index - 1);
-            Node newNode = new Node(block);
-            newNode.next = prev.next;
-            prev.next = newNode;
         }
-        size++;
+        // אם אנחנו מוסיפים לסוף הרשימה (index == size)
+        else if (index == size) {
+            addLast(block);
+        }
+        // אם אנחנו מוסיפים באמצע הרשימה
+        else {
+            Node prev = getNode(index - 1); // מוצאים את הצומת הקודם
+            newNode.next = prev.next; // מקשרים את הצומת החדש לצומת הבא
+            prev.next = newNode; // מקשרים את הצומת הקודם לצומת החדש
+        }
+
+        size++; // מגבירים את גודל הרשימה
     }
 
     /**
