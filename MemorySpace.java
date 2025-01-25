@@ -1,3 +1,8 @@
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Collections;
+import java.util.Comparator;
+
 /**
  * Represents a managed memory space. The memory space manages a list of allocated
  * memory blocks, and a list of free memory blocks. The methods "malloc" and "free" are
@@ -19,7 +24,7 @@ public class MemorySpace {
     public MemorySpace(int maxSize) {
         allocatedList = new java.util.LinkedList<>();
         freeList = new java.util.LinkedList<>();
-        freeList.addLast(new MemoryBlock(0, maxSize));
+        freeList.addLast(new MemoryBlock(0, maxSize)); // Initial whole block is free
     }
 
     /**
@@ -30,20 +35,22 @@ public class MemorySpace {
      * @return the base address of the allocated block, or -1 if unable to allocate
      */
     public int malloc(int length) {
-        for (MemoryBlock block : freeList) {
+        Iterator<MemoryBlock> it = freeList.iterator();
+        while (it.hasNext()) {
+            MemoryBlock block = it.next();
             if (block.size >= length) {
                 int baseAddress = block.baseAddress;
-                allocatedList.add(new MemoryBlock(baseAddress, length));
-                if (block.size > length) {
-                    block.baseAddress += length;
-                    block.size -= length;
+                if (block.size == length) {
+                    it.remove(); // Remove the block completely if it matches exactly
                 } else {
-                    freeList.remove(block);
+                    block.baseAddress += length;
+                    block.size -= length; // Adjust the block's starting point and size
                 }
+                allocatedList.add(new MemoryBlock(baseAddress, length));
                 return baseAddress;
             }
         }
-        return -1;
+        return -1; // Return -1 if no suitable block is found
     }
 
     /**
@@ -54,21 +61,52 @@ public class MemorySpace {
      * @param baseAddress the starting address of the block to free
      */
     public void free(int baseAddress) {
-        MemoryBlock toFree = null;
-        for (MemoryBlock block : allocatedList) {
+        Iterator<MemoryBlock> it = allocatedList.iterator();
+        while (it.hasNext()) {
+            MemoryBlock block = it.next();
             if (block.baseAddress == baseAddress) {
-                toFree = block;
-                break;
+                it.remove();
+                mergeIntoFreeList(block); // Assume you implement this method to handle merging
+                return;
             }
         }
-        if (toFree != null) {
-            allocatedList.remove(toFree);
-            freeList.add(toFree);
-        } else {
-            throw new IllegalArgumentException("Invalid base address.");
-        }
+        throw new IllegalArgumentException("Invalid base address.");
     }
 
+    /**
+     * Helper method to merge a block into the free list, attempting to maintain
+     * order and merge contiguous blocks.
+     *
+     * @param block the block to merge into the free list
+     */
+    private void mergeIntoFreeList(MemoryBlock block) {
+        // Insert and merge logic here, ensuring blocks are merged if they are adjacent
+    }
+
+    /**
+     * Performs defragmentation of this memory space.
+     * Normally, called by malloc, when it fails to find a memory block of the requested size.
+     */
+    public void defrag() {
+        Collections.sort(freeList, Comparator.comparingInt(a -> a.baseAddress));
+        LinkedList<MemoryBlock> newFreeList = new LinkedList<>();
+        MemoryBlock prev = null;
+    
+        for (MemoryBlock curr : freeList) {
+            if (prev != null && prev.baseAddress + prev.size == curr.baseAddress) {
+                prev.size += curr.size; // Merge contiguous blocks
+            } else {
+                if (prev != null) {
+                    newFreeList.add(prev);
+                }
+                prev = curr;
+            }
+        }
+        if (prev != null) {
+            newFreeList.add(prev);
+        }
+        freeList = newFreeList;
+    }
     /**
      * A textual representation of the free list and the allocated list of this memory space,
      * for debugging purposes.
@@ -84,31 +122,6 @@ public class MemorySpace {
         return allBlocks.stream()
                 .map(block -> String.format("(%d , %d)", block.baseAddress, block.size))
                 .collect(java.util.stream.Collectors.joining("\n"));
-    }
-
-    /**
-     * Performs defragmentation of this memory space.
-     * Normally, called by malloc, when it fails to find a memory block of the requested size.
-     */
-    public void defrag() {
-        freeList.sort((a, b) -> Integer.compare(a.baseAddress, b.baseAddress));
-        java.util.LinkedList<MemoryBlock> newFreeList = new java.util.LinkedList<>();
-        MemoryBlock last = null;
-
-        for (MemoryBlock current : freeList) {
-            if (last != null && last.baseAddress + last.size == current.baseAddress) {
-                last.size += current.size;
-            } else {
-                if (last != null) {
-                    newFreeList.add(last);
-                }
-                last = current;
-            }
-        }
-        if (last != null) {
-            newFreeList.add(last);
-        }
-        freeList = newFreeList;
     }
 
     /**

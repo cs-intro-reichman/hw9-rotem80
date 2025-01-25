@@ -1,8 +1,8 @@
+
 /**
  * Represents a list of Nodes.
  */
 public class LinkedList {
-
     private Node first; // pointer to the first element of this list
     private Node last;  // pointer to the last element of this list
     private int size;   // number of elements in this list
@@ -42,7 +42,6 @@ public class LinkedList {
 
     /**
      * Gets the node located at the given index in this list.
-     *
      * @param index the index of the node to retrieve, between 0 and size
      * @throws IllegalArgumentException if index is negative or greater than or equal to size
      * @return the node at the given index
@@ -60,7 +59,6 @@ public class LinkedList {
 
     /**
      * Gets the memory block located at the given index in this list.
-     *
      * @param index the index of the node to retrieve
      * @return the memory block at the given index or null if index is invalid
      */
@@ -71,7 +69,6 @@ public class LinkedList {
 
     /**
      * Finds the index of the node containing the given memory block.
-     *
      * @param block the memory block to locate
      * @return the index of the node containing the block, or -1 if not found
      */
@@ -88,7 +85,6 @@ public class LinkedList {
 
     /**
      * Adds a new node with the specified memory block to the beginning of the list.
-     *
      * @param block the memory block to add
      */
     public void addFirst(MemoryBlock block) {
@@ -105,7 +101,6 @@ public class LinkedList {
 
     /**
      * Adds a new node with the specified memory block to the end of the list.
-     *
      * @param block the memory block to add
      */
     public void addLast(MemoryBlock block) {
@@ -122,7 +117,6 @@ public class LinkedList {
 
     /**
      * Inserts a new node with the specified memory block at the specified index.
-     *
      * @param index the position to insert the node
      * @param block the memory block to insert
      */
@@ -153,7 +147,6 @@ public class LinkedList {
 
     /**
      * Removes the specified node from the list.
-     *
      * @param node the node to remove
      */
     public void remove(Node node) {
@@ -182,7 +175,6 @@ public class LinkedList {
 
     /**
      * Removes the node at the specified index from the list.
-     *
      * @param index the index of the node to remove
      */
     public void remove(int index) {
@@ -194,7 +186,6 @@ public class LinkedList {
 
     /**
      * Removes the node containing the specified memory block from the list.
-     *
      * @param block the memory block of the node to remove
      */
     public void remove(MemoryBlock block) {
@@ -203,7 +194,6 @@ public class LinkedList {
 
     /**
      * A textual representation of this list, for debugging.
-     *
      * @return a string representing the list
      */
     public String toString() {
@@ -218,7 +208,6 @@ public class LinkedList {
 
     /**
      * Returns an iterator over the elements in this list in proper sequence.
-     *
      * @return a ListIterator over the elements in this list
      */
     public ListIterator iterator() {
