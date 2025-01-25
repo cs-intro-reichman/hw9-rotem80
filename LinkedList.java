@@ -133,22 +133,22 @@ public class LinkedList {
 
         Node newNode = new Node(block);
 
-        // אם אנחנו מוסיפים לראש הרשימה (index == 0)
+        // If we're adding to the front (index == 0)
         if (index == 0) {
             addFirst(block);
         }
-        // אם אנחנו מוסיפים לסוף הרשימה (index == size)
+        // If we're adding to the end (index == size)
         else if (index == size) {
             addLast(block);
         }
-        // אם אנחנו מוסיפים באמצע הרשימה
+        // If we're adding to a middle position
         else {
-            Node prev = getNode(index - 1); // מוצאים את הצומת הקודם
-            newNode.next = prev.next; // מקשרים את הצומת החדש לצומת הבא
-            prev.next = newNode; // מקשרים את הצומת הקודם לצומת החדש
+            Node prev = getNode(index - 1); // find the previous node
+            newNode.next = prev.next; // link the new node to the next node
+            prev.next = newNode; // link the previous node to the new node
         }
 
-        size++; // מגבירים את גודל הרשימה
+        size++; // increment the size of the list
     }
 
     /**
