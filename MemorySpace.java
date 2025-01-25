@@ -34,11 +34,11 @@ public class MemorySpace {
             if (block.size >= length) {
                 int baseAddress = block.baseAddress;
                 allocatedList.add(new MemoryBlock(baseAddress, length));
-                if (block.size == length) {
-                    freeList.remove(block);
-                } else {
+                if (block.size > length) {
                     block.baseAddress += length;
                     block.size -= length;
+                } else {
+                    freeList.remove(block);
                 }
                 return baseAddress;
             }
@@ -64,6 +64,8 @@ public class MemorySpace {
         if (toFree != null) {
             allocatedList.remove(toFree);
             freeList.add(toFree);
+        } else {
+            throw new IllegalArgumentException("Invalid base address.");
         }
     }
 
