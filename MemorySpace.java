@@ -1,7 +1,3 @@
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  * Represents a managed memory space. The memory space manages a list of allocated
  * memory blocks, and a list of free memory blocks. The methods "malloc" and "free" are
@@ -10,10 +6,10 @@ import java.util.stream.Collectors;
 public class MemorySpace {
 
     // A list of the memory blocks that are presently allocated
-    private LinkedList<MemoryBlock> allocatedList;
+    private java.util.LinkedList<MemoryBlock> allocatedList;
 
     // A list of memory blocks that are presently free
-    private LinkedList<MemoryBlock> freeList;
+    private java.util.LinkedList<MemoryBlock> freeList;
 
     /**
      * Constructs a new managed memory space of a given maximal size.
@@ -21,8 +17,8 @@ public class MemorySpace {
      * @param maxSize the size of the memory space to be managed
      */
     public MemorySpace(int maxSize) {
-        allocatedList = new LinkedList<>();
-        freeList = new LinkedList<>();
+        allocatedList = new java.util.LinkedList<>();
+        freeList = new java.util.LinkedList<>();
         freeList.addLast(new MemoryBlock(0, maxSize));
     }
 
@@ -77,15 +73,15 @@ public class MemorySpace {
      */
     @Override
     public String toString() {
-        List<MemoryBlock> allBlocks = new LinkedList<>();
+        java.util.List<MemoryBlock> allBlocks = new java.util.LinkedList<>();
         allBlocks.addAll(freeList);
         allBlocks.addAll(allocatedList);
-        
+
         allBlocks.sort((a, b) -> Integer.compare(a.baseAddress, b.baseAddress));
-        
+
         return allBlocks.stream()
                 .map(block -> String.format("(%d , %d)", block.baseAddress, block.size))
-                .collect(Collectors.joining("\n"));
+                .collect(java.util.stream.Collectors.joining("\n"));
     }
 
     /**
@@ -94,7 +90,7 @@ public class MemorySpace {
      */
     public void defrag() {
         freeList.sort((a, b) -> Integer.compare(a.baseAddress, b.baseAddress));
-        LinkedList<MemoryBlock> newFreeList = new LinkedList<>();
+        java.util.LinkedList<MemoryBlock> newFreeList = new java.util.LinkedList<>();
         MemoryBlock last = null;
 
         for (MemoryBlock current : freeList) {
