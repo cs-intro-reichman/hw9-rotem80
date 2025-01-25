@@ -122,29 +122,20 @@ public class LinkedList {
      */
     public void add(int index, MemoryBlock block) {
         if (index < 0 || index > size) {
-            throw new IllegalArgumentException("index must be between 0 and size");
+            throw new IllegalArgumentException("Index out of bounds");
         }
-
-        Node newNode = new Node(block);
-
-        // If we're adding to the front (index == 0)
+    
         if (index == 0) {
             addFirst(block);
-        }
-        // If we're adding to the end (index == size)
-        else if (index == size) {
+        } else if (index == size) {
             addLast(block);
+        } else {
+            Node previous = getNode(index - 1);
+            Node newNode = new Node(block, previous.next);
+            previous.next = newNode;
+            size++;
         }
-        // If we're adding to a middle position
-        else {
-            Node prev = getNode(index - 1); // find the previous node
-            newNode.next = prev.next; // link the new node to the next node
-            prev.next = newNode; // link the previous node to the new node
-        }
-
-        size++; // increment the size of the list
-    }
-
+    }    
     /**
      * Removes the specified node from the list.
      * @param node the node to remove

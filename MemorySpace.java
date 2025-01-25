@@ -1,6 +1,5 @@
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Collections;
 import java.util.Comparator;
 
 /**
@@ -35,24 +34,23 @@ public class MemorySpace {
      * @return the base address of the allocated block, or -1 if unable to allocate
      */
     public int malloc(int length) {
-        Iterator<MemoryBlock> it = freeList.iterator();
-        while (it.hasNext()) {
-            MemoryBlock block = it.next();
+        Iterator<MemoryBlock> iterator = freeList.iterator();
+        while (iterator.hasNext()) {
+            MemoryBlock block = iterator.next();
             if (block.size >= length) {
                 int baseAddress = block.baseAddress;
                 if (block.size == length) {
-                    it.remove(); // Remove the block completely if it matches exactly
+                    iterator.remove();
                 } else {
                     block.baseAddress += length;
-                    block.size -= length; // Adjust the block's starting point and size
+                    block.size -= length;
                 }
                 allocatedList.add(new MemoryBlock(baseAddress, length));
                 return baseAddress;
             }
         }
-        return -1; // Return -1 if no suitable block is found
-    }
-
+        return -1; // No suitable block found
+    }    
     /**
      * Frees the memory block whose base address equals the given address.
      * This implementation deletes the block whose base address equals the given
@@ -60,18 +58,19 @@ public class MemorySpace {
      *
      * @param baseAddress the starting address of the block to free
      */
+
     public void free(int baseAddress) {
-        Iterator<MemoryBlock> it = allocatedList.iterator();
-        while (it.hasNext()) {
-            MemoryBlock block = it.next();
+        Iterator<MemoryBlock> iterator = allocatedList.iterator();
+        while (iterator.hasNext()) {
+            MemoryBlock block = iterator.next();
             if (block.baseAddress == baseAddress) {
-                it.remove();
-                mergeIntoFreeList(block); // Assume you implement this method to handle merging
+                iterator.remove();
+                mergeIntoFreeList(block);
                 return;
             }
         }
         throw new IllegalArgumentException("Invalid base address.");
-    }
+    }    
 
     /**
      * Helper method to merge a block into the free list, attempting to maintain
@@ -88,25 +87,26 @@ public class MemorySpace {
      * Normally, called by malloc, when it fails to find a memory block of the requested size.
      */
     public void defrag() {
-        Collections.sort(freeList, Comparator.comparingInt(a -> a.baseAddress));
-        LinkedList<MemoryBlock> newFreeList = new LinkedList<>();
-        MemoryBlock prev = null;
-    
-        for (MemoryBlock curr : freeList) {
-            if (prev != null && prev.baseAddress + prev.size == curr.baseAddress) {
-                prev.size += curr.size; // Merge contiguous blocks
-            } else {
-                if (prev != null) {
-                    newFreeList.add(prev);
-                }
-                prev = curr;
+    freeList.sort(Comparator.comparingInt(a -> a.baseAddress));
+    LinkedList<MemoryBlock> newFreeList = new LinkedList<>();
+    MemoryBlock previous = null;
+
+    for (MemoryBlock current : freeList) {
+        if (previous != null && previous.baseAddress + previous.size == current.baseAddress) {
+            previous.size += current.size;
+        } else {
+            if (previous != null) {
+                newFreeList.add(previous);
             }
+            previous = current;
         }
-        if (prev != null) {
-            newFreeList.add(prev);
-        }
-        freeList = newFreeList;
     }
+    if (previous != null) {
+        newFreeList.add(previous);
+    }
+    freeList = newFreeList;
+}
+
     /**
      * A textual representation of the free list and the allocated list of this memory space,
      * for debugging purposes.
