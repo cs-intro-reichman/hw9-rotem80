@@ -36,6 +36,6 @@ public class Node {
      */
     @Override
     public String toString() {
-        return "{" + block + "}";
+        return "" + block + "";
     }
 }

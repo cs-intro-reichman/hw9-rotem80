@@ -1,134 +1,111 @@
 import java.util.LinkedList;
 
 /**
- * Represents a managed memory space. The memory space manages a list of
- * allocated memory blocks and a list of free memory blocks. Methods "malloc" and "free"
- * handle memory allocation and deallocation, respectively.
+ * Represents a managed memory space. The memory space manages a list of allocated 
+ * memory blocks, and a list of free memory blocks. The methods "malloc" and "free" are 
+ * used, respectively, for creating new blocks and recycling existing blocks.
  */
 public class MemorySpace {
 
-    private LinkedList<MemoryBlock> allocatedList;  // List of currently allocated memory blocks
-    private LinkedList<MemoryBlock> freeList;       // List of currently free memory blocks
+    // A list of the memory blocks that are presently allocated
+    private LinkedList<MemoryBlock> allocatedList;
+
+    // A list of memory blocks that are presently free
+    private LinkedList<MemoryBlock> freeList;
 
     /**
      * Constructs a new managed memory space of a given maximal size.
-     *
+     * 
      * @param maxSize the size of the memory space to be managed
      */
     public MemorySpace(int maxSize) {
         allocatedList = new LinkedList<>();
         freeList = new LinkedList<>();
-        freeList.add(new MemoryBlock(0, maxSize)); // Initially, all memory is free.
-        System.out.println("Initial memory setup: " + this);
+        freeList.addLast(new MemoryBlock(0, maxSize));
     }
 
     /**
-     * Allocates a memory block of a requested length (in words).
-     * Returns the base address of the allocated block, or -1 if unable to allocate.
-     *
-     * @param length the length (in words) of the memory block to allocate
-     * @return the base address of the allocated block, or -1 if allocation fails
+     * Allocates a memory block of a requested length (in words). Returns the
+     * base address of the allocated block, or -1 if unable to allocate.
+     * 
+     * @param length the length (in words) of the memory block that has to be allocated
+     * @return the base address of the allocated block, or -1 if unable to allocate
      */
     public int malloc(int length) {
-        if (length <= 0) {
-            System.out.println("Malloc request for non-positive size: " + length);
-            return -1; // Cannot allocate non-positive sizes.
-        }
-
-        System.out.println("Attempting to allocate: " + length);
         for (MemoryBlock block : freeList) {
             if (block.size >= length) {
                 int baseAddress = block.baseAddress;
-
+                allocatedList.add(new MemoryBlock(baseAddress, length));
                 if (block.size == length) {
                     freeList.remove(block);
                 } else {
                     block.baseAddress += length;
                     block.size -= length;
                 }
-
-                MemoryBlock newBlock = new MemoryBlock(baseAddress, length);
-                allocatedList.add(newBlock);
-                System.out.println("Allocated " + length + " at base " + baseAddress + ". Updated memory: " + this);
                 return baseAddress;
             }
         }
-
-        System.out.println("Failed to allocate " + length);
-        return -1; // No suitable block found.
+        return -1;
     }
 
     /**
      * Frees the memory block whose base address equals the given address.
-     * This implementation deletes the block from the allocatedList and adds it to the free list.
-     *
-     * @param baseAddress the base address of the block to free
+     * This implementation deletes the block whose base address equals the given
+     * address from the allocatedList, and adds it at the end of the free list.
+     * 
+     * @param baseAddress the starting address of the block to free
      */
     public void free(int baseAddress) {
-        System.out.println("Attempting to free block at: " + baseAddress);
-        MemoryBlock toFree = null;
-        for (MemoryBlock block : allocatedList) {
-            if (block.baseAddress == baseAddress) {
-                toFree = block;
-                break;
-            }
-        }
+        MemoryBlock blockToFree = allocatedList.stream()
+            .filter(block -> block.baseAddress == baseAddress)
+            .findFirst()
+            .orElse(null);
 
-        if (toFree != null) {
-            allocatedList.remove(toFree);
-            freeList.add(toFree);
-            System.out.println("Freed block at base " + baseAddress + ". Before defragmentation: " + this);
-            defrag();
-        } else {
-            throw new IllegalArgumentException("Block with base address " + baseAddress + " not found.");
+        if (blockToFree != null) {
+            allocatedList.remove(blockToFree);
+            freeList.addLast(new MemoryBlock(blockToFree.baseAddress, blockToFree.size));
         }
     }
 
     /**
-     * Performs defragmentation of the free list by merging contiguous blocks.
+     * A textual representation of the free list and the allocated list of this memory space, 
+     * for debugging purposes.
      */
-    public void defrag() {
-        System.out.println("Defragmenting...");
-        freeList.sort((a, b) -> Integer.compare(a.baseAddress, b.baseAddress));
-        LinkedList<MemoryBlock> newFreeList = new LinkedList<>();
-
-        MemoryBlock current = null;
-        for (MemoryBlock block : freeList) {
-            if (current == null) {
-                current = block;
-            } else {
-                if (current.baseAddress + current.size == block.baseAddress) {
-                    current.size += block.size; // Merge contiguous blocks
-                } else {
-                    newFreeList.add(current);
-                    current = block;
-                }
-            }
-        }
-        if (current != null) {
-            newFreeList.add(current);
-        }
-        freeList = newFreeList;
-        System.out.println("Post-defragmentation: " + this);
-    }
-
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("Memory Space State:\nFree Blocks: ");
-        for (MemoryBlock block : freeList) {
-            sb.append("(").append(block.baseAddress).append(", ").append(block.size).append(") ");
-        }
-        sb.append("\nAllocated Blocks: ");
-        for (MemoryBlock block : allocatedList) {
-            sb.append("(").append(block.baseAddress).append(", ").append(block.size).append(") ");
-        }
-        return sb.toString();
+        StringBuilder result = new StringBuilder();
+        freeList.forEach(block -> result.append(String.format("(%d , %d)\n", block.baseAddress, block.size)));
+        allocatedList.forEach(block -> result.append(String.format("(%d , %d)\n", block.baseAddress, block.size)));
+        return result.toString();
     }
 
     /**
-     * Represents a memory block with a base address and size.
+     * Performs defragmentation of this memory space.
+     * Normally, called by malloc, when it fails to find a memory block of the requested size.
+     * In this implementation Malloc does not call defrag.
      */
-    private static class MemoryBlock {
+    public void defrag() {
+        freeList.sort((a, b) -> Integer.compare(a.baseAddress, b.baseAddress));
+        LinkedList<MemoryBlock> newFreeList = new LinkedList<>();
+        MemoryBlock last = null;
+
+        for (MemoryBlock current : freeList) {
+            if (last != null && (last.baseAddress + last.size == current.baseAddress)) {
+                last.size += current.size;
+            } else {
+                if (last != null) {
+                    newFreeList.add(last);
+                }
+                last = current;
+            }
+        }
+        if (last != null) {
+            newFreeList.add(last);
+        }
+        freeList = newFreeList;
+    }
+
+    private class MemoryBlock {
         int baseAddress;
         int size;
 
@@ -136,25 +113,5 @@ public class MemorySpace {
             this.baseAddress = baseAddress;
             this.size = size;
         }
-    }
-
-    public static void main(String[] args) {
-        MemorySpace memorySpace = new MemorySpace(100); // Initialize with 100 units of space
-        System.out.println("Initial memory state: " + memorySpace);
-
-        int address1 = memorySpace.malloc(10);
-        int address2 = memorySpace.malloc(20);
-        System.out.println("Memory state after allocations: " + memorySpace);
-
-        memorySpace.free(address1);
-        System.out.println("Memory state after freeing first block: " + memorySpace);
-
-        // Demonstrating the use of address2
-        System.out.println("Freeing block allocated at address2 (" + address2 + ")");
-        memorySpace.free(address2);
-        System.out.println("Memory state after freeing second block: " + memorySpace);
-
-        memorySpace.defrag();
-        System.out.println("Final memory state after defragmentation: " + memorySpace);
     }
 }
