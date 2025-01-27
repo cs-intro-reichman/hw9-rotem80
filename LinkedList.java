@@ -131,7 +131,8 @@ public class LinkedList {
             addLast(block);
         } else {
             Node previous = getNode(index - 1);
-            Node newNode = new Node(block, previous.next);
+            Node newNode = new Node(block);
+            newNode.next = previous.next;
             previous.next = newNode;
             size++;
         }
@@ -188,14 +189,14 @@ public class LinkedList {
      * @return a string representing the list
      */
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        String s = "";
         Node current = first;
         while (current != null) {
-            sb.append(current.block).append(" ");
-            current = current.next;
+        s = s + current.block + " ";
+        current = current.next;
         }
-        return sb.toString().trim();
-    }
+        return s;
+        }
 
     /**
      * Returns an iterator over the elements in this list in proper sequence.
