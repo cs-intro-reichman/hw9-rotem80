@@ -92,22 +92,29 @@ public class MemorySpace {
 	 *            the starting address of the block to freeList
 	 */
 	public void free(int address) {
-		ListIterator iterator = allocatedList.iterator();
-		while (iterator.hasNext()) {
-			MemoryBlock block = iterator.next();
-
-			if (block.baseAddress == address) {
-				// Remove the block from allocatedList
-				allocatedList.remove(block);
-
-				// Add the block to the freeList
-				freeList.addLast(block);
-				return;
-			}
+		// Check if allocatedList is empty
+		if (allocatedList.getSize() == 0) {
+			throw new IllegalArgumentException("index must be between 0 and size");
 		}
-		throw new IllegalArgumentException("No allocated block found with the given base address: " + address);
-	}
 	
+		// Create a custom ListIterator to traverse the allocatedList
+		ListIterator iterator = new ListIterator(this.allocatedList.getFirst());
+	
+		// Iterate through the list to find the block with the matching address
+		while (iterator.hasNext()) {
+			if (iterator.current.block.baseAddress == address) {
+				// Add the block to the freeList
+				this.freeList.addLast(iterator.current.block);
+	
+				// Remove the block from allocatedList
+				this.allocatedList.remove(iterator.current.block);
+	
+				break; // Exit the loop after freeing the block
+			}
+			iterator.next(); // Move to the next node
+		}
+	}
+		
 	/**
 	 * A textual representation of the free list and the allocated list of this memory space, 
 	 * for debugging purposes.

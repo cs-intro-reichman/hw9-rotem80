@@ -160,6 +160,8 @@ public class LinkedList {
                 if (node == last) {
                     last = current;
                 }
+            } else {
+                throw new IllegalArgumentException("Node not found in the list");
             }
         }
         size--;
