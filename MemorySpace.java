@@ -97,24 +97,34 @@ public class MemorySpace {
 			throw new IllegalArgumentException("index must be between 0 and size");
 		}
 	
-		// Create a custom ListIterator to traverse the allocatedList
-		ListIterator iterator = new ListIterator(this.allocatedList.getFirst());
+		// Use custom ListIterator to traverse the allocatedList
+		ListIterator iterator = new ListIterator(allocatedList.getFirst());
 	
-		// Iterate through the list to find the block with the matching address
+		// Search for the block in allocatedList
 		while (iterator.hasNext()) {
 			if (iterator.current.block.baseAddress == address) {
-				// Add the block to the freeList
-				this.freeList.addLast(iterator.current.block);
-	
-				// Remove the block from allocatedList
-				this.allocatedList.remove(iterator.current.block);
-	
-				break; // Exit the loop after freeing the block
+				// Move the block from allocatedList to freeList
+				freeList.addLast(iterator.current.block);
+				allocatedList.remove(iterator.current.block);
+				return; // Successfully freed
 			}
-			iterator.next(); // Move to the next node
+			iterator.next(); // Move to the next block
 		}
+	
+		// If not found in allocatedList, check if it is already in freeList
+		ListIterator freeIterator = new ListIterator(freeList.getFirst());
+		while (freeIterator.hasNext()) {
+			if (freeIterator.current.block.baseAddress == address) {
+				// Block is already freed; consider it a success
+				return;
+			}
+			freeIterator.next(); // Move to the next block
+		}
+	
+		// If the block is neither in allocatedList nor in freeList, consider it invalid
+		return; // Treat invalid address as a successful operation (no exception thrown)
 	}
-		
+	
 	/**
 	 * A textual representation of the free list and the allocated list of this memory space, 
 	 * for debugging purposes.
